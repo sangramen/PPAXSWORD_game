@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>소드 강화 게임 - 실시간 랭킹</title>
+<style>
+body { font-family:'Arial',sans-serif; text-align:center; margin-top:30px; }
+#gameArea,#rankingBox{display:none;}
+#intro{margin-top:100px;}
+#intro button{font-size:32px; padding:24px 60px; margin-top:30px; cursor:pointer;}
+#shopButton{position:fixed; top:48px; left:10px; background-color:#28a745; color:white; border:none; padding:15px 30px; font-size:52px; font-weight:bold; border-radius:6px; cursor:pointer; display:none; z-index:999;}
+#shopArea{display:none; margin-top:50px;}
+button{cursor:pointer;}
+img{margin:20px;}
+#buyProtectBtn{font-size:20px; padding:12px 30px; margin-top:20px; cursor:pointer;}
+.gameControl{display:none;}
+#infoBox{display:none; position:absolute; top:60px; right:50px; width:320px; height:450px; border:2px solid #333; border-radius:8px; padding:15px; font-size:20px; text-align:left; background:#f7f7f7; box-shadow:2px 2px 8px rgba(0,0,0,0.2);}
+#gameOverScreen{display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:black; justify-content:center; align-items:center; flex-direction:column; z-index:9999;}
+#gameOverVideo{max-width:80%; max-height:80%;}
+</style>
+</head>
+<body>
+
+<div id="intro">
+<h1>소드 강화 시뮬레이터</h1>
+<button onclick="startGame()">게임 시작</button>
+</div>
+
+<button id="shopButton" onclick="openShop()">상점</button>
+
+<div id="gameArea">
+<h2>환영합니다, <span id="nicknameDisplay"></span> 님!</h2>
+<img id="swordImg" src="sword_lv0.png" width="200" onerror="this.style.display='none'"><br>
+<p id="swordName">검 이름: 그냥 소드.</p>
+<p>현재 레벨: <span id="currentLevel">0</span></p>
+<p>텅장(소지금): <span id="money">0</span> 원</p>
+<p>강화비용: <span id="enhanceCost">100</span> 원</p>
+<button class="gameControl" onclick="enhanceSword()">강화!!!</button>
+<button class="gameControl" onclick="sellSword()">소드 판매하기</button>
+<h3>🏆랭킹🏆</h3>
+<pre id="rankingBox"></pre>
+</div>
+
+<div id="infoBox">
+<p style="font-weight:bold; font-size:22px; margin-bottom:8px;">강화 성공 확률</p>
+<p id="successRateDisplay" style="font-size:28px;">100%</p>
+<hr style="margin:8px 0;">
+<p>현재 소드 판매 가격: <span id="currentPriceDisplay">0 원</span></p>
+<p>다음 레벨 판매 가격: <span id="nextPriceDisplay">0 원</span></p>
+<hr style="margin:12px 0;">
+<p>현재 레벨: <span id="currentLevelInfo">0</span></p>
+<p>텅장(소지금): <span id="moneyInfo">0</span> 원</p>
+<p id="protectStatus">강화 보호 아이템: 없음</p>
+</div>
+
+<div id="shopArea">
+<h2>상점</h2>
+<p style="margin-bottom:10px; font-weight:bold;">
+🛡️ '87세 김미시 할머니의 최후의 갑옷'<br>
+효과: 강화 실패 시 소드 파괴 1회 방어
+</p>
+<button id="buyProtectBtn" onclick="buyProtectItem()">구매 (3000원)</button><br>
+<button onclick="closeShop()" style="margin-top:20px;">상점 나가기</button>
+</div>
+
+<div id="gameOverScreen">
+<video id="gameOverVideo" src="over.mp4" onerror="this.style.display='none'"></video>
+</div>
+
+<!-- 효과음 -->
+<audio id="successSound" src="success.mp3" onerror="this.style.display='none'"></audio>
+<audio id="failSound" src="fail.mp3" onerror="this.style.display='none'"></audio>
+<audio id="enhanceTrySound" src="enhanceTry.mp3" onerror="this.style.display='none'"></audio>
+<audio id="buyProtectSound" src="buyProtect.mp3" onerror="this.style.display='none'"></audio>
+<audio id="sellSound" src="sell.mp3" onerror="this.style.display='none'"></audio>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyCEZUoYNe846MbRFYmZQfkH6_Pu8gJGYxM",
+authDomain: "swordenhancegame.firebaseapp.com",
+databaseURL: "https://swordenhancegame-default-rtdb.firebaseio.com/",
+projectId: "swordenhancegame",
+storageBucket: "swordenhancegame.firebasestorage.app",
+messagingSenderId: "452889860113",
+appId: "1:452889860113:web:fb018e74cedab080db39b0",
+measurementId: "G-F8BJC35Q24"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let gameStarted=false;
+let level=0,nickname='',highScore=0,money=2500,protectCount=0;
+const successRates=[1,0.95,0.9,0.85,0.8,0.75,0.7,0.65,0.6,0.55,0.5,0.45,0.4,0.35,0.3];
+const swordNames=["그냥 소드.","목검 소드","날카로운 소드","짱쎈 소드","사춘기 소드","카이다 소드","PRETTY 소드","난쟁이똥자루 소드","석탄 코스프레","개발자 먹는 소드","비둘기 소드","난쟁이목검 소드","탈모온 소드(beta)","메이드 소드","엑스칼리버 소드"];
+
+function getEnhanceCost(l){return Math.floor(100*Math.pow(1.25,l));}
+function isSuccess(){return Math.random()<(successRates[level]??0.1);}
+function getSellPrice(l){if(l===1)return 100;if(l===2)return 250;if(l===3)return 1000;let p=1000;for(let i=4;i<=l;i++)p*=2;return p;}
+
+function updateUI(){
+document.getElementById('successRateDisplay').textContent=`${((successRates[level]??0.1)*100).toFixed(1)}%`;
+document.getElementById('currentPriceDisplay').textContent=`${getSellPrice(level)} 원`;
+document.getElementById('nextPriceDisplay').textContent=`${getSellPrice(level+1)} 원`;
+document.getElementById('currentLevel').textContent=level;
+document.getElementById('currentLevelInfo').textContent=level;
+document.getElementById('money').textContent=money;
+document.getElementById('moneyInfo').textContent=money;
+document.getElementById('protectStatus').textContent=protectCount>0?`강화 보호 아이템: ${protectCount}개`:"강화 보호 아이템: 없음";
+document.getElementById('swordImg').src=`sword_lv${Math.min(level,13)}.png`;
+document.getElementById('swordName').textContent=`검 이름: ${swordNames[Math.min(level,swordNames.length-1)]}`;
+document.getElementById('enhanceCost').textContent=getEnhanceCost(level);
+checkGameOver();
+}
+
+function startGame(){
+nickname=prompt('닉네임 입력 (최대 30자)');
+if(!nickname||nickname.length>30){alert("닉네임은 30자 이하!"); return;}
+nickname=nickname.replace(/</g,"&lt;").replace(/>/g,"&gt;"); // XSS 예방
+document.getElementById('nicknameDisplay').textContent=nickname;
+document.getElementById('intro').style.display='none';
+document.getElementById('gameArea').style.display='block';
+document.getElementById('shopButton').style.display='block';
+document.getElementById('infoBox').style.display='block';
+document.querySelectorAll('.gameControl').forEach(b=>b.style.display='inline-block');
+gameStarted=true;
+
+// Firebase 데이터 불러오기
+db.ref('players/'+nickname).once('value')
+.then(snapshot=>{
+const data=snapshot.val();
+if(data){level=data.level; money=data.money; protectCount=data.protectCount||0; highScore=data.highScore||level;}
+updateUI();
+})
+.catch(err=>{console.warn("Firebase load fail:",err); updateUI(); });
+
+// 실시간 랭킹
+db.ref("ranking").orderByChild("score").limitToLast(10)
+.on("value", snapshot=>{
+let list=""; let arr=[];
+snapshot.forEach(child=>arr.push(child.val()));
+arr.sort((a,b)=>b.score-a.score);
+arr.forEach(d=>list+=`${d.nickname} : ${d.score}<br>`);
+document.getElementById("rankingBox").innerHTML=list;
+});
+}
+
+function enhanceSword(){
+const cost=getEnhanceCost(level);
+if(money<cost){alert(`강화비용 ${cost}원이 부족!`); return;}
+money-=cost; playEnhanceTrySound();
+if(isSuccess()){level++; if(level>highScore)highScore=level; playSound(true); alert(`성공! 레벨+${level}`);}
+else{if(protectCount>0){protectCount--; alert("보호 아이템 덕분에 파괴되지 않았습니다.");} else{level=0; alert("실패! 소드 파괴");} playSound(false);}
+savePlayerState(); saveHighScore(); updateUI();
+}
+
+function sellSword(){
+if(level<1){alert("레벨 0 소드는 판매 불가"); return;}
+const price=getSellPrice(level); money+=price; level=0;
+alert(`${price}원 획득!`); playSellSound(); updateUI(); savePlayerState(); saveHighScore();
+}
+
+function buyProtectItem(){if(money<3000){alert("3000원 부족"); return;} money-=3000; protectCount++; alert("보호 아이템 구매!"); playBuyProtectSound(); savePlayerState();}
+
+function savePlayerState(){try{db.ref('players/'+nickname).set({level,money,protectCount,highScore});}catch(e){console.warn(e);}}
+function saveHighScore(){try{db.ref('ranking/'+nickname).set({nickname,score:highScore});}catch(e){console.warn(e);}}
+
+function playEnhanceTrySound(){const s=document.getElementById('enhanceTrySound'); if(s){s.currentTime=0; s.play().catch(()=>{});}}
+function playSound(success){const s=document.getElementById(success?'successSound':'failSound'); if(s){s.currentTime=0; s.play().catch(()=>{});}}
+function playSellSound(){const s=document.getElementById('sellSound'); if(s){s.currentTime=0; s.play().catch(()=>{});}}
+function playBuyProtectSound(){const s=document.getElementById('buyProtectSound'); if(s){s.currentTime=0; s.play().catch(()=>{});}}
+
+function openShop(){document.getElementById('gameArea').style.display='none'; document.getElementById('rankingBox').style.display='none'; document.getElementById('shopArea').style.display='block'; document.getElementById('shopButton').style.display='none';}
+function closeShop(){document.getElementById('shopArea').style.display='none'; document.getElementById('gameArea').style.display='block'; document.getElementById('rankingBox').style.display='block'; document.getElementById('shopButton').style.display='block'; updateUI();}
+
+function checkGameOver(){if(!gameStarted) return; if(money<225 && level===0){triggerGameOver();}}
+function triggerGameOver(){
+const screen=document.getElementById('gameOverScreen');
+const video=document.getElementById('gameOverVideo');
+screen.style.display='flex';
+video.play().catch(()=>{}); // 영상 없으면 넘어감
+video.onended=()=>{level=0; money=2500; protectCount=0; updateUI(); alert("GAME OVER - 다시 시작 가능"); screen.style.display='none';}
+}
+</script>
+</body>
+</html>
