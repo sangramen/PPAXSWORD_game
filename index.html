@@ -2,468 +2,178 @@
 <html lang="ko">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>s̵̮͇͂̃a̶̯̮̣̍͒̋ņġ_ř?ą의 소드 강화 게임</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      text-align: center;
-      margin-top: 30px;
-    }
+    <meta charset="UTF-8">
+    <title>소드 강화 게임 - 실시간 랭킹</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin-top: 30px;
+        }
 
-    #gameArea,
-    #rankingBox {
-      display: none;
-    }
+        #gameArea,
+        #rankingBox {
+            display: none;
+        }
 
-    #intro {
-      margin-top: 100px;
-    }
+        #intro {
+            margin-top: 100px;
+        }
 
-    #intro button {
-      font-size: 32px;
-      padding: 24px 60px;
-      margin-top: 30px;
-      cursor: pointer;
-    }
+        #intro button {
+            font-size: 32px;
+            padding: 24px 60px;
+            margin-top: 30px;
+            cursor: pointer;
+        }
 
-    #shopButton {
-      position: fixed;
-      top: 48px;
-      left: 10px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 52px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      display: none;
-      z-index: 999;
-    }
+        #shopButton {
+            position: fixed;
+            top: 48px;
+            left: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 52px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+            z-index: 999;
+        }
 
-    #shopArea {
-      display: none;
-      margin-top: 50px;
-    }
+        #shopArea {
+            display: none;
+            margin-top: 50px;
+        }
 
-    button {
-      cursor: pointer;
-    }
+        button {
+            cursor: pointer;
+        }
 
-    img {
-      margin: 20px;
-      max-width: 90%;
-      height: auto;
-    }
+        img {
+            margin: 20px;
+        }
 
-    #buyProtectBtn {
-      font-size: 20px;
-      padding: 12px 30px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
+        #buyProtectBtn {
+            font-size: 20px;
+            padding: 12px 30px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
 
-    .gameControl {
-      display: none;
-      font-size: 18px;
-      padding: 10px 20px;
-    }
+        .gameControl {
+            display: none;
+        }
 
-    #infoBox {
-      display: none;
-      position: absolute;
-      top: 60px;
-      right: 50px;
-      width: 320px;
-      height: 420px;
-      border: 2px solid #333;
-      border-radius: 8px;
-      padding: 15px;
-      font-size: 20px;
-      text-align: left;
-      background: #f7f7f7;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-    }
+        #infoBox {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 50px;
+            width: 320px;
+            height: 450px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 20px;
+            text-align: left;
+            background: #f7f7f7;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        }
 
-    @media (max-width: 768px) {
-      body {
-        font-size: 16px;
-      }
+        #gameOverScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+        }
 
-      #infoBox {
-        position: static;
-        width: 90%;
-        margin: 20px auto;
-        height: auto;
-      }
-
-      #shopButton {
-        font-size: 36px;
-        padding: 10px 20px;
-      }
-
-      #intro button {
-        font-size: 24px;
-        padding: 16px 40px;
-      }
-
-      .gameControl {
-        font-size: 16px;
-        padding: 10px 15px;
-      }
-    }
-  </style>
+        #gameOverVideo {
+            max-width: 80%;
+            max-height: 80%;
+        }
+    </style>
 </head>
 
 <body>
-  <div id="intro">
-    <h1>소드 강화 시뮬레이터 by.s̵̮͇͂̃a̶̯̮̣̍͒̋ņġ_ř?ą</h1>
-    <button onclick="startGame()">게임 시작</button>
-  </div>
 
-  <button id="shopButton" onclick="openShop()">상점</button>
+    <!-- 인트로 화면 -->
+    <div id="intro">
+        <h1>소드 강화 시뮬레이터</h1>
+        <button onclick="startGame()">게임 시작</button>
+    </div>
 
-  <div id="gameArea">
-    <h2>환영합니다, <span id="nicknameDisplay"></span> 님!</h2>
-    <img id="swordImg" src="sword_lv0.png" width="200"><br>
-    <p id="swordName">검 이름: 찌그러진 소드.</p>
-    <p>현재 레벨: <span id="currentLevel">0</span></p>
-    <p>텅장(소지금): <span id="money">0</span> 원</p>
-    <p>강화비용: <span id="enhanceCost">100</span> 원</p>
-    <button class="gameControl" onclick="enhanceSword()">강화!!!</button>
-    <button class="gameControl" onclick="sellSword()">소@드 판매하기(?)</button>
+    <!-- 상점 버튼 -->
+    <button id="shopButton" onclick="openShop()">상점</button>
 
-    <p style="margin-top: 10px; font-weight: bold;">
-      PPAX와 AgA는 최강이다<br>
-    </p>
-    <h3>🏆랭킹🏆</h3>
-    <pre id="rankingBox"></pre>
-  </div>
+    <!-- 게임 영역 -->
+    <div id="gameArea">
+        <h2>환영합니다, <span id="nicknameDisplay"></span> 님!</h2>
+        <img id="swordImg" src="images/sword_lv0.png" width="200" onerror="this.style.display='none'"><br>
+        <p id="swordName">검 이름: 그냥 소드.</p>
+        <p>현재 레벨: <span id="currentLevel">0</span></p>
+        <p>텅장(소지금): <span id="money">0</span> 원</p>
+        <p>강화비용: <span id="enhanceCost">100</span> 원</p>
+        <button class="gameControl" onclick="enhanceSword()">강화!!!</button>
+        <button class="gameControl" onclick="sellSword()">소드 판매하기</button>
+        <h3>🏆랭킹🏆</h3>
+        <pre id="rankingBox"></pre>
+    </div>
 
-  <div id="infoBox">
-    <p style="font-weight: bold; font-size: 22px; margin-bottom: 8px;">강화 성공 확률</p>
-    <p id="successRateDisplay" style="font-size: 28px; margin: 0 0 12px 0;">100%</p>
-    <hr style="margin: 8px 0;" />
-    <p>현재 소드 판매 가격: <span id="currentPriceDisplay">0 원</span></p>
-    <p>다음 레벨 판매 가격: <span id="nextPriceDisplay">0 원</span></p>
-    <hr style="margin: 12px 0;" />
-    <p>현재 레벨: <span id="currentLevelInfo">0</span></p>
-    <p>텅장(소지금): <span id="moneyInfo">0</span> 원</p>
-    <p id="protectStatus">강화 보호 아이템: 없음</p>
-  </div>
+    <!-- 정보 박스 -->
+    <div id="infoBox">
+        <p style="font-weight:bold; font-size:22px; margin-bottom:8px;">강화 성공 확률</p>
+        <p id="successRateDisplay" style="font-size:28px;">100%</p>
+        <hr style="margin:8px 0;">
+        <p>현재 소드 판매 가격: <span id="currentPriceDisplay">0 원</span></p>
+        <p>다음 레벨 판매 가격: <span id="nextPriceDisplay">0 원</span></p>
+        <hr style="margin:12px 0;">
+        <p>현재 레벨: <span id="currentLevelInfo">0</span></p>
+        <p>텅장(소지금): <span id="moneyInfo">0</span> 원</p>
+        <p id="protectStatus">강화 보호 아이템: 없음</p>
+    </div>
 
-  <div id="shopArea">
-    <h2>상점</h2>
-    <button id="buyProtectBtn" onclick="buyProtectItem()">87세 김미시 할머니의 최후의 갑옷 구매 (3000원)</button><br />
-    <button onclick="closeShop()" style="margin-top: 20px;">상점 나가기</button>
-  </div>
+    <!-- 상점 -->
+    <div id="shopArea">
+        <h2>상점</h2>
+        <p style="margin-bottom:10px; font-weight:bold;">
+            🛡️ '87세 김미시 할머니의 최후의 갑옷'<br>
+            효과: 강화 실패 시 소드 파괴 1회 방어
+        </p>
+        <button id="buyProtectBtn" onclick="buyProtectItem()">구매 (3000원)</button><br>
+        <button onclick="closeShop()" style="margin-top:20px;">상점 나가기</button>
+    </div>
 
-</body>
+    <!-- 게임 오버 화면 -->
+    <div id="gameOverScreen">
+        <video id="gameOverVideo" src="video/over.mp4" onerror="this.style.display='none'"></video>
+    </div>
 
-<!-- 효과음 -->
-<audio id="successSound" src="success.mp3"></audio>
-<audio id="failSound" src="fail.mp3"></audio>
-<audio id="enhanceTrySound" src="enhanceTry.mp3"></audio>
-<audio id="buyProtectSound" src="buyProtect.mp3"></audio>
-<audio id="sellSound" src="sell.mp3"></audio>
+    <!-- 효과음 -->
+    <audio id="successSound" src="sounds/success.mp3" onerror="this.style.display='none'"></audio>
+    <audio id="failSound" src="sounds/fail.mp3" onerror="this.style.display='none'"></audio>
+    <audio id="enhanceTrySound" src="sounds/enhanceTry.mp3" onerror="this.style.display='none'"></audio>
+    <audio id="buyProtectSound" src="sounds/buyProtect.mp3" onerror="this.style.display='none'"></audio>
+    <audio id="sellSound" src="sounds/sell.mp3" onerror="this.style.display='none'"></audio>
 
-<!-- 초기화 버튼 -->
-<button id="resetButton" onclick="openResetWindow()" style="
-  position: fixed;
-  top: 80px; /* 상점 버튼 아래 */
-  left: 10px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  font-size: 48px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  z-index: 999;
-  display: none;
-">데이터_초기화.exe</button>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<script>
-  let level = 0;
-  let nickname = '';
-  let highScore = 0;
-  let workspace = 'true_dev'
-  let money = 2500;
-  let protectItem = false;
+    <!-- JS 스크립트 -->
+    <script src="workspace.js"></script>
+    <script src="data_UI.js"></script>
+    <script src="effect_work.js"></script>
 
-  // 페이지가 로드될 때 이전에 사용했던 닉네임이 있다면 자동 불러오기
-  window.addEventListener('DOMContentLoaded', () => {
-    const lastNickname = localStorage.getItem('lastNickname');
-    if (lastNickname && localStorage.getItem(lastNickname)) {
-      const shouldLoad = confirm(`${lastNickname} 님의 저장된 데이터를 불러올까요?`);
-      if (shouldLoad) {
-        nickname = lastNickname;
-        const saved = JSON.parse(localStorage.getItem(nickname));
-        level = saved.level;
-        money = saved.money;
-        protectItem = saved.protectItem;
-        highScore = saved.highScore || level;
-
-        document.getElementById('nicknameDisplay').textContent = nickname;
-        document.getElementById('intro').style.display = 'none';
-        document.getElementById('gameArea').style.display = 'block';
-        document.getElementById('shopButton').style.display = 'block';
-        document.getElementById('infoBox').style.display = 'block';
-
-        document.querySelectorAll('.gameControl').forEach(btn => {
-          btn.style.display = 'inline-block';
-        });
-
-        updateUI();
-        showRanking();
-      }
-    }
-  });
-
-
-  const successRates = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.05, 0.025, 0.0001];
-  const swordNames = [
-    "찌그러진 소드.",
-    "목검 소드",
-    "정상적인 소드",
-    "짱쎈 소드",
-    "사춘기 소드",
-    "카이다 소드",
-    "PRETTY 소드",
-    "난쟁이 소드",
-    "석탄 코스프레하는 소드",
-    "개발자 먹는 소드",
-    "비둘기 소드",
-    "난쟁이목검 소드",
-    "탈모온 소드"
-  ];
-
-  const bannedWords = ["ㅈㅈ", "ㅂㅅ", "운지", "씨", "꺼져", "병신", "노무현", "다이빙", "니엄마", "죽음"];
-
-  function getEnhanceCost(level) {
-    return Math.floor(100 * Math.pow(1.25, level));
-  }
-
-  function isSuccess() {
-    const rate = successRates[level] ?? 0.1;
-    return Math.random() < rate;
-  }
-
-  function updateUI() {
-    // 강화 성공 확률
-    const successRate = successRates[level] ?? 0.1;
-    document.getElementById('successRateDisplay').textContent = `${(successRate * 100).toFixed(1)}%`;
-
-    // 판매 가격 표시
-    document.getElementById('currentPriceDisplay').textContent = `${getSellPrice(level)} 원`;
-    document.getElementById('nextPriceDisplay').textContent = `${getSellPrice(level + 1)} 원`;
-
-    // infoBox 내 현재 레벨, 소지금 표시 (별도의 id 사용)
-    document.getElementById('currentLevelInfo').textContent = level;
-    document.getElementById('moneyInfo').textContent = money;
-
-    // 보호 아이템 상태 표시
-    document.getElementById('protectStatus').textContent = protectItem ? "강화 보호 아이템: 장착 중" : "강화 보호 아이템: 없음";
-
-    // 기존 gameArea UI 업데이트
-    document.getElementById('currentLevel').textContent = level;
-    document.getElementById('money').textContent = money;
-    document.getElementById('swordImg').src = `sword_lv${Math.min(level, 13)}.png`;
-    document.getElementById('swordName').textContent = `검 이름: ${swordNames[Math.min(level, 12)]}`;
-    document.getElementById('enhanceCost').textContent = getEnhanceCost(level);
-  }
-
-  function startGame() {
-    nickname = prompt('닉네임을 입력하세요~~ (최대 30자)');
-    if (!nickname || nickname.length > 30) {
-      alert("닉네임은 30자 이하여야 합니다.");
-      return;
-    }
-    if (bannedWords.some(bad => nickname.includes(bad))) {
-      alert("부적절한 닉네임입니다.");
-      return;
-    }
-    localStorage.setItem('lastNickname', nickname);
-
-
-    const ranking = JSON.parse(localStorage.getItem('ranking') || '[]');
-    const allKeys = Object.keys(localStorage);
-    const nicknameExists = allKeys.includes(nickname);
-    if (ranking.some(r => r.nickname === nickname) || nicknameExists) {
-      alert("이미 누가 가져간 닉네임입니다 ㅋ 다른거 고르세요.");
-      return;
-    }
-
-    // 닉네임 통과하면 UI 초기화 및 보이기
-    document.getElementById('nicknameDisplay').textContent = nickname;
-    document.getElementById('intro').style.display = 'none';
-    document.getElementById('gameArea').style.display = 'block';
-    document.getElementById('shopButton').style.display = 'block';
-    document.getElementById('infoBox').style.display = 'block';
-
-    // 게임 컨트롤 버튼들 표시
-    document.querySelectorAll('.gameControl').forEach(btn => {
-      btn.style.display = 'inline-block';
-    });
-
-    const saved = JSON.parse(localStorage.getItem(nickname));
-    if (saved) {
-      level = saved.level;
-      money = saved.money;
-      protectItem = saved.protectItem;
-      highScore = saved.highScore || level;
-    }
-    updateUI();
-    showRanking();
-  }
-
-  function openShop() {
-    document.getElementById('gameArea').style.display = 'none';
-    document.getElementById('rankingBox').style.display = 'none';
-    document.getElementById('shopArea').style.display = 'block';
-    document.getElementById('shopButton').style.display = 'none';
-  }
-
-  function closeShop() {
-    document.getElementById('shopArea').style.display = 'none';
-    document.getElementById('gameArea').style.display = 'block';
-    document.getElementById('rankingBox').style.display = 'block';
-    document.getElementById('shopButton').style.display = 'block';
-    updateUI();
-  }
-
-  function buyProtectItem() {
-    if (money < 3000) return alert("3000원이 부족합니다.");
-    money -= 3000;
-    protectItem = true;
-    alert("87세 김미시 할머니의 최후의 갑옷을 구매하여 장착했습니다.");
-    playBuyProtectSound();
-    savePlayerState();
-    updateUI();
-  }
-
-  function playBuyProtectSound() {
-    const sound = document.getElementById('buyProtectSound');
-    if (sound) {
-      sound.currentTime = 0;
-      sound.play();
-    }
-  }
-
-  function playEnhanceTrySound() {
-    const trySound = document.getElementById('enhanceTrySound');
-    if (trySound) {
-      trySound.currentTime = 0;
-      trySound.play();
-    }
-  }
-
-  function enhanceSword() {
-    playEnhanceTrySound();
-    const cost = getEnhanceCost(level);
-    if (money < cost) return alert(`강화비용 ${cost}원이 필요합니다.`);
-    money -= cost;
-
-    if (isSuccess()) {
-      level++;
-      if (level > highScore) {
-        highScore = level;
-        saveHighScore();
-      }
-      alert(`성공! 소드 레벨: +${level}`);
-      playSound(true);
-    } else {
-      if (protectItem) {
-        protectItem = false;
-        alert("실패! but '87세 김미시 할머니의 최후의 갑옷' 덕분에 파괴되지 않았습니다.");
-      } else {
-        level = 0;
-        alert("실패! 소드가 BROKEN!!!");
-      }
-      playSound(false);
-    }
-    updateUI();
-    savePlayerState();
-    showRanking();
-  }
-
-  function playSellSound() {
-    const audio = document.getElementById('sellSound');
-    if (audio) {
-      audio.currentTime = 0;
-      audio.play();
-    }
-  }
-
-  function sellSword() {
-    if (level < 1) return alert("레벨 0 소드는 판매할 수 없습니다.");
-    const price = getSellPrice(level);
-    money += price;
-    level = 0;
-    alert(`ㄷ근마cat에 소드를 팔아서 ${price}원을 획득했습니다!! ㅋㅋㅋㅋ`);
-    playSellSound();
-    updateUI();
-    savePlayerState();
-  }
-
-  function getSellPrice(level) {
-    if (level === 1) return 100;
-    if (level === 2) return 250;
-    if (level === 3) return 1000;
-    let price = 1000;
-    for (let i = 4; i <= level; i++) price *= 2;
-    return price;
-  }
-
-  function saveHighScore() {
-    let ranking = JSON.parse(localStorage.getItem('ranking') || '[]');
-    const existing = ranking.find(r => r.nickname === nickname);
-    if (existing) {
-      existing.score = Math.max(existing.score, highScore);
-    } else {
-      ranking.push({ nickname, score: highScore });
-    }
-    ranking.sort((a, b) => b.score - a.score);
-    localStorage.setItem('ranking', JSON.stringify(ranking.slice(0, 10)));
-  }
-
-  function savePlayerState() {
-    localStorage.setItem(nickname, JSON.stringify({ level, money, protectItem, highScore }));
-  }
-
-  function showRanking() {
-    const ranking = JSON.parse(localStorage.getItem('ranking') || '[]');
-    const list = ranking.map((r, i) => `${i + 1}. ${r.nickname}: +${r.score}`).join('\n');
-    document.getElementById('rankingBox').textContent = list;
-    document.getElementById('rankingBox').style.display = 'block';
-  }
-
-  function playSound(success) {
-    const audio = document.getElementById(success ? 'successSound' : 'failSound');
-    audio.currentTime = 0;
-    audio.play();
-  }
-
-  // 개발자 전용 치트키: Shift + Ctrl + R + 비밀번호 입력 후 초기화
-  document.addEventListener('keydown', e => {
-    if (e.shiftKey && e.ctrlKey && e.code === 'KeyR') {
-      const password = prompt("관리자 비밀번호를 입력하세요:");
-      if (password === workspace) {
-        if (confirm("[DEV] 랭킹 및 저장된 닉네임 초기화합니다. 계속할까요?")) {
-          localStorage.clear();
-          alert("초기화 완료됨. 페이지를 새로고침합니다.");
-          location.reload();
-        }
-      } else {
-        alert("비밀번호가 틀렸습니다.");
-      }
-    }
-  });
-</script>
 </body>
 
 </html>
