@@ -139,7 +139,7 @@
         <hr style="margin:12px 0;">
         <p>현재 레벨: <span id="currentLevelInfo">0</span></p>
         <p>텅장(소지금): <span id="moneyInfo">0</span> 원</p>
-        <p id="protectStatus">"87세 김미시 할머니의 최후의 갑옷": 없음</p>
+        <p id="protectStatus">강화 보호 아이템: 없음</p>
     </div>
 
     <!-- 상점 -->
@@ -147,7 +147,7 @@
         <h2>상점</h2>
         <p style="margin-bottom:10px; font-weight:bold;">
             🛡️ '87세 김미시 할머니의 최후의 갑옷'<br>
-            효과: 강화 실패 시 소드 폭@8😱 1회 방어
+            효과: 강화 실패 시 소드 파괴 1회 방어
         </p>
         <button id="buyProtectBtn" onclick="buyProtectItem()">구매 (3000원)</button><br>
         <button onclick="closeShop()" style="margin-top:20px;">상점 나가기</button>
@@ -155,7 +155,7 @@
 
     <!-- 게임 오버 화면 -->
     <div id="gameOverScreen">
-        <video id="gameOverVideo" src="video/over.mp4" onerror="this.style.display='none'"></video>
+        <video id="gameOverVideo" src="videos/over.mp4" onerror="this.style.display='none'"></video>
     </div>
 
     <!-- 효과음 -->
@@ -169,7 +169,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-    <!-- JS 스크립트 -->
+    <!-- 스크립트 3개 -->
     <script src="workspace.js"></script>
     <script src="data_UI.js"></script>
     <script src="effect_work.js"></script>
