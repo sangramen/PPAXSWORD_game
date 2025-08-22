@@ -26,5 +26,5 @@ function triggerGameOver() {
     const video = document.getElementById('gameOverVideo');
     screen.style.display = 'flex';
     video.play().catch(() => { }); // 영상 없으면 넘어감
-    video.onended = () => { level = 0; money = 2500; protectCount = 0; updateUI(); alert("GAME OVER - 다시 시작 가능"); screen.style.display = 'none'; }
+    video.onended = () => { level = 0; money = 2500; protectCount = 0; updateUI(); alert("GAME OVER - 잃은 것은 다시 찾으면 된다."); screen.style.display = 'none'; }
 }

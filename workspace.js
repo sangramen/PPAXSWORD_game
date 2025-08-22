@@ -31,7 +31,7 @@ function updateUI() {
     document.getElementById('currentLevelInfo').textContent = level;
     document.getElementById('money').textContent = money;
     document.getElementById('moneyInfo').textContent = money;
-    document.getElementById('protectStatus').textContent = protectCount > 0 ? `강화 보호 아이템: ${protectCount}개` : "강화 보호 아이템: 없음";
+    document.getElementById('protectStatus').textContent = protectCount > 0 ? `87세 김미시 할머니의 최후의 갑옷: ${protectCount}개` : "87세 김미시 할머니의 최후의 갑옷: 없음";
     document.getElementById('swordImg').src = `images/sword_lv${Math.min(level, 13)}.png`;
     document.getElementById('swordName').textContent = `검 이름: ${swordNames[Math.min(level, swordNames.length - 1)]}`;
     document.getElementById('enhanceCost').textContent = getEnhanceCost(level);
@@ -41,7 +41,7 @@ function updateUI() {
 // 게임 시작
 function startGame() {
     nickname = prompt('닉네임 입력 (최대 30자)');
-    if (!nickname || nickname.length > 30) { alert("닉네임은 30자 이하!"); return; }
+    if (!nickname || nickname.length > 30) { alert("닉네임은 30자 이하로 해요"); return; }
     nickname = nickname.replace(/</g, "&lt;").replace(/>/g, "&gt;"); // XSS 예방
     document.getElementById('nicknameDisplay').textContent = nickname;
     document.getElementById('intro').style.display = 'none';
